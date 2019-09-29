@@ -194,8 +194,13 @@ class SlackHistory(object):
         """Returns a list of direct message threads."""
         threads = []
         for t in self.slack.im.list().body['ims']:
-            t['username'] = self.usernames[t['user']]
-            threads.append(t)
+            # need the below check to make sure user exists in 'self.usernames',
+            # otherwise code aborts in the assigment stmt below with a "key error",
+            # e.g. when "t" has 'is_user_deleted' as "true" or when t['user'] has 
+            # spaces in it, each of which results in "key error"s
+            if t['user'] in self.usernames:
+                t['username'] = self.usernames[t['user']]
+                threads.append(t)
         return threads
 
     def dm_thread_history(self, thread):
